@@ -5,20 +5,25 @@
 	<title></title>
 	<style>
 		div{ padding: 10px; line-height: 26px;}
-		button{ margin-left: 10px; padding: 10px; }
+		button{ margin: 10px 10px; padding: 10px; }
 	</style>
 </head>
 <body>
 	<div>
 	按“F12”打开 capture 工具，点击 network，然后点击此按钮，观察请求和响应。<br>
 	</div>
-	<button id="myButton">
+	<button id="myButton">  <!-- 用ajsx发请求 -->
 		点击
 	</button>
+	<form action="https://www.baidu.com" method="GET"> <!-- 用form表单发请求 -->
+		<input type="password" name="password">
+		<input type="submit">
+	</form>
 	<div>
 	注意：点一下 viewsorce！ 点一下 viewsorce！ 点一下 viewsorce！<br>
 	若想查看响应的内容，点一下 response。
 	</div>
+	
 	<script src="./main.js"></script>
 </body>
 </html>

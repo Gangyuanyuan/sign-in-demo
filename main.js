@@ -1,6 +1,6 @@
 myButton.addEventListener('click', (e)=>{
     let request = new XMLHttpRequest()
-    request.open('get', '/xxx') // 初始化request
+    request.open('get', 'https://jack.com:8002/xxx') // 初始化request
     request.send()
     request.onreadystatechange = ()=>{
       if(request.readyState === 4){ // 请求响应都完毕了

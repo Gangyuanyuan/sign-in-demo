@@ -36,6 +36,8 @@ var server = http.createServer(function(request, response){
   }else if(path==='/xxx'){
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/json;charset=utf-8')
+    // CORS跨域，允许frank.com:8001跨域请求
+    response.setHeader('Access-Control-Allow-Origin', 'http://frank.com:8001')
     response.write(`
     {
       "note":{
