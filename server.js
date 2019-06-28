@@ -23,6 +23,31 @@ var server = http.createServer(function(request, response){
 
   if(path === '/'){
     let string = fs.readFileSync('./index.html', 'utf8')
+    let cookies = request.headers.cookie.split('; ') // ['sign_in_email=1@', 'a=1', 'b=1']
+    let hash = {}
+    for(let i=0; i<cookies.length; i++){
+      let parts = cookies[i].split('=') // ['sign_in_email', '1@']
+      let key = parts[0]
+      let value = parts[1]
+      hash[key] = value
+    }
+    let email = hash.sign_in_email
+    let users = fs.readFileSync('./db/users', 'utf8') // string
+    users = JSON.parse(users) // array
+    let foundUser
+    for(let i=0; i<users.length; i++){
+      if(users[i].email === email){
+        foundUser = users[i]
+        break
+      }
+    }
+    if(foundUser){
+      string = string.replace('__username__', foundUser.email)
+      string = string.replace('__password__', foundUser.password)
+    }else{
+      string = string.replace('__username__', '请登录')
+      string = string.replace('__password__', '不知道')
+    }
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write(string)
@@ -35,15 +60,14 @@ var server = http.createServer(function(request, response){
     response.end()
   }else if(path === '/sign_up' && method === 'POST'){
     readBody(request).then((body) => { // 读取第四部分
-      let strings = body.split('&') 
-      // strings = ['email=1', 'password=2', 'password_confirmation=3']
+      let strings = body.split('&') // ['email=1', 'password=2', 'password_confirmation=3']
       let hash = {}
       strings.forEach((string) => { // string == 'email=1'
         let parts = string.split('=') // ['email', '1']
         let key = parts[0]
         let value = parts[1]
-        hash[key] = value // hash['email'] = '1'
-      })
+        hash[key] = decodeURIComponent(value) // {'email':'1'}
+      }) 
       // hash = {'email':'1', 'password':'2', 'password_confirmation':'3'}
       let {email, password, password_confirmation} = hash // ES6语法
       if(email.indexOf('@') === -1){ // 若email中不含@
@@ -53,13 +77,73 @@ var server = http.createServer(function(request, response){
           "errors": {
             "email": "invalid"
           }
-        }`)
+        }`) // 返回一段JSON
       }else if(password !== password_confirmation){
         response.statusCode = 400
         response.write('password not match')
       }else{
-        response.statusCode = 200
+        var users = fs.readFileSync('./db/users', 'utf8') // string
+        try{
+          users = JSON.parse(users) // 转为array
+        }catch(exception){
+          users = [] // 出现错误即清空，不去储存
+        }
+        let inUse = false
+        for(let i=0; i<users.length; i++){
+          let user = users[i]
+          if(user.email === email){
+            inUse = true
+            break;
+          }
+        }
+        if(inUse){
+          response.statusCode = 400
+          response.write('email in use')
+        }else{
+          users.push({email: email, password: password})
+          var usersString = JSON.stringify(users) // 转为字符串
+          fs.writeFileSync('./db/users', usersString) // 存储
+          response.statusCode = 200
+        }
       }
+      response.end()
+    })
+  }else if(path === '/sign_in' && method === 'GET'){
+    let string = fs.readFileSync('./sign_in.html', 'utf8')
+    response.statusCode = 200
+    response.setHeader('Content-Type', 'text/html;charset=utf-8')
+    response.write(string)
+    response.end()
+  }else if(path === '/sign_in' && method === 'POST'){
+    readBody(request).then((body) => {
+      let strings = body.split('&') 
+      let hash = {}
+      strings.forEach((string) => {
+        let parts = string.split('=')
+        let key = parts[0]
+        let value = parts[1]
+        hash[key] = decodeURIComponent(value)
+      })
+      let {email, password} = hash
+      var users = fs.readFileSync('./db/users', 'utf8') // string
+        try{
+          users = JSON.parse(users) // 转为array
+        }catch(exception){
+          users = []
+        }
+        let found
+        for(let i=0; i<users.length; i++){
+          if(users[i].email === email && users[i].password === password){
+            found = true
+            break
+          }
+        }
+        if(found){
+          response.setHeader('Set-Cookie', `sign_in_email=${email}`)
+          response.statusCode = 200
+        }else{
+          response.statusCode = 401
+        }
       response.end()
     })
   }else if(path === '/main.js'){

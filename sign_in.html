@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>注册</title>
+	<title>登录</title>
 	<style>
 		*{margin: 0; padding: 0;}
 		*{box-sizing: border-box;}
@@ -37,8 +37,8 @@
 </head>
 <body>
 	<div class="form-wrapper">
-		<h1>注册</h1>
-		<form id="signUpForm">
+		<h1>登录</h1>
+		<form id="signInForm">
 			<div class="row">
 				<label>邮箱</label>
 				<input type="text" name="email">
@@ -50,22 +50,17 @@
 				<span class="error"></span>
 			</div>
 			<div class="row">
-				<label>确认密码</label>
-				<input type="password" name="password_confirmation">
-				<span class="error"></span>
-			</div>
-			<div class="row">
-				<input  class="submit" type="submit" value="注册">
+				<input  class="submit" type="submit" value="登录">
 			</div>
 		</form>
 	</div>
 	<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 	<script>
-		let $form = $('#signUpForm')
+		let $form = $('#signInForm')
 		$form.on('submit', (e)=>{
 			let hash = {}
 			e.preventDefault()
-			let need = ['email', 'password', 'password_confirmation'] // 数组
+			let need = ['email', 'password'] // 数组
 			need.forEach((name)=>{
 				let value = $form.find(`[name=${name}]`).val() // 拿到用户输入的值
 				hash[name] = value
@@ -81,27 +76,13 @@
 			if(hash['password'] === ''){
 				$form.find('[name="password"]').siblings('.error')
 					.text('请输入密码')
-				return
+					return
 			}
-			if(hash['password_confirmation'] === ''){
-				$form.find('[name="password_confirmation"]').siblings('.error')
-					.text('请确认密码')
-				return
-			}
-			if(hash['password'] !== hash['password_confirmation']){
-				$form.find('[name="password_confirmation"]').siblings('.error')
-					.text('密码不一致')
-				return
-			}
-			$.post('/sign_up', hash)
-				.then((response) => {
-					alert('注册成功')
-				}, (request) => {
-					let {errors} = request.responseJSON // 对象
-					if(errors.email && errors.email === 'invalid'){
-						$form.find('[name="email"]').siblings('.error')
-							.text('邮箱格式错误')
-					}
+			$.post('/sign_in', hash)
+				.then((response) => { // 成功
+					window.location.href = '/' // 跳转到首页
+				}, (request) => { // 失败
+					alert('邮箱与密码不匹配')
 				})
 		})
 	</script>
