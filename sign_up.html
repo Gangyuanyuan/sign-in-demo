@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>注册</title>
+	<style>
+		*{margin: 0; padding: 0;}
+		*{box-sizing: border-box;}
+		body{
+			border: 1px solid red;
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+		}
+		.form-wrapper{
+			border: 1px solid #ddd;
+			padding: 20px;
+		}
+		.form-wrapper > h1{
+			text-align: center;
+		}
+		.form-wrapper .row{
+			margin: 12px 0;
+		}
+		.form-wrapper .row > label{
+			display: inline-block;
+			min-width: 4em;
+		}
+		.form-wrapper .row > .submit{
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+	</style>
+</head>
+<body>
+	<div class="form-wrapper">
+		<h1>注册</h1>
+		<form id="signUpForm">
+			<div class="row">
+				<label>邮箱</label>
+				<input type="text" name="email">
+			</div>
+			<div class="row">
+				<label>密码</label>
+				<input type="password" name="password">
+			</div>
+			<div class="row">
+				<label>确认密码</label>
+				<input type="password" name="password_confirmation">
+			</div>
+			<div class="row">
+				<input  class="submit" type="submit" value="注册">
+			</div>
+		</form>
+	</div>
+	<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+	<script>
+		let hash = {}
+		$('#signUpForm').on('submit', (e)=>{
+			e.preventDefault()
+			let need = ['email', 'password', 'password_confirmation'] // 数组
+			need.forEach((name)=>{
+				let value = $('#signUpForm').find(`[name=${name}]`).val() // 拿到用户输入的值
+				hash[name] = value
+			})
+			$.post('/sign_up', hash)
+				.then(()=>{
+					console.log('success')
+				}, ()=>{
+					console.log('error')
+				})
+		})
+	</script>
+</body>
+</html>

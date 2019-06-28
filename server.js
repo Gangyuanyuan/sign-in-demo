@@ -27,13 +27,22 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path==='/main.js'){
+  }else if(path === '/sign_up' && method === 'GET'){
+    let string = fs.readFileSync('./sign_up.html', 'utf8')
+    response.statusCode = 200
+    response.setHeader('Content-Type', 'text/html;charset=utf-8')
+    response.write(string)
+    response.end()
+  }else if(path === '/sign_up' && method === 'POST'){
+    response.statusCode = 200
+    response.end()
+  }else if(path === '/main.js'){
     let string = fs.readFileSync('./main.js', 'utf8')
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/javascript;charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path==='/xxx'){
+  }else if(path === '/xxx'){
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/json;charset=utf-8')
     // CORS跨域，允许frank.com:8001跨域请求
