@@ -3,11 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title></title>
-	<style>
-	.wrapper{border: 1px solid red; margin-bottom: 20px; padding: 10px;}
-	.explain{line-height: 26px;}
-	button{margin: 10px 100px; padding: 5px 10px; border-radius: 4px;}
-	</style>
+	<link rel="stylesheet" href="./default.css?v=2">
 </head>
 <body>
 	<div class="wrapper">
@@ -29,5 +25,12 @@
 		</div>
 	</div>
 	<script src="./main.js"></script>
+	<script>
+		let already = localStorage.getItem('已提示')
+		if(!already){
+			alert('你好，我们的网站已改版，出现一些新功能……')
+			localStorage.setItem('已提示', true)
+		}else{}
+	</script>
 </body>
 </html>

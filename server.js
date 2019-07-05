@@ -8,6 +8,10 @@ if(!port){
   process.exit(1)
 }
 
+let sessions = {
+
+}
+
 var server = http.createServer(function(request, response){
   var parsedUrl = url.parse(request.url, true)
   var pathWithQuery = request.url 
@@ -23,7 +27,10 @@ var server = http.createServer(function(request, response){
 
   if(path === '/'){
     let string = fs.readFileSync('./index.html', 'utf8')
-    let cookies = request.headers.cookie.split('; ') // ['sign_in_email=1@', 'a=1', 'b=1']
+    let cookies = ''
+    if(request.headers.cookie){
+      cookies = request.headers.cookie.split('; ') // ['sign_in_email=1@', 'a=1', 'b=1']
+    }
     let hash = {}
     for(let i=0; i<cookies.length; i++){
       let parts = cookies[i].split('=') // ['sign_in_email', '1@']
@@ -31,7 +38,11 @@ var server = http.createServer(function(request, response){
       let value = parts[1]
       hash[key] = value
     }
-    let email = hash.sign_in_email
+    let mySession = sessions[hash.sessionId]
+    let email 
+    if(mySession){
+      email = mySession.sign_in_email
+    }
     let users = fs.readFileSync('./db/users', 'utf8') // string
     users = JSON.parse(users) // array
     let foundUser
@@ -58,7 +69,7 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path === '/sign_up' && method === 'POST'){
+  }else if(path === '/sign_up' && method === 'POST'){ // 注册
     readBody(request).then((body) => { // 读取第四部分
       let strings = body.split('&') // ['email=1', 'password=2', 'password_confirmation=3']
       let hash = {}
@@ -114,7 +125,7 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path === '/sign_in' && method === 'POST'){
+  }else if(path === '/sign_in' && method === 'POST'){ // 登录
     readBody(request).then((body) => {
       let strings = body.split('&') 
       let hash = {}
@@ -139,18 +150,34 @@ var server = http.createServer(function(request, response){
           }
         }
         if(found){
-          response.setHeader('Set-Cookie', `sign_in_email=${email}`)
+          let sessionId = Math.random() * 100000
+          sessions[sessionId] =  {sign_in_email: email}
+          response.setHeader('Set-Cookie', `sessionId=${sessionId}`)
           response.statusCode = 200
         }else{
           response.statusCode = 401
         }
       response.end()
     })
+  }else if(path === '/default.css'){
+    let string = fs.readFileSync('./default.css', 'utf8')
+    response.setHeader('Content-Type', 'text/css;charset=utf-8')
+    response.setHeader('Cache-Control', 'max-age=300000000') // Cache-Control
+    // response.setHeader('Expires', 'Fri, 05 Jul 2019 04:47:35 GMT')
+    response.write(string)
+    response.end()
   }else if(path === '/main.js'){
     let string = fs.readFileSync('./main.js', 'utf8')
-    response.statusCode = 200
     response.setHeader('Content-Type', 'text/javascript;charset=utf-8')
-    response.write(string)
+    let fileMd5 = md5(string)
+    response.setHeader('ETag', fileMd5) // ETag
+    if(response.headers['if-none-match'] === fileMd5){
+      // 没有响应体
+      response.statusCode = 304
+    }else{
+      // 有响应体
+      response.write(string)
+    }
     response.end()
   }else if(path === '/xxx'){
     response.statusCode = 200

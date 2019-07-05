@@ -1,0 +1,13 @@
+.wrapper{
+	border: 1px solid red;
+	margin-bottom: 20px;
+	padding: 10px;
+}
+.explain{
+	line-height: 26px;
+}
+button{
+	margin: 10px 100px;
+	padding: 5px 10px;
+	border-radius: 4px;
+}
