@@ -2,6 +2,7 @@ var http = require('http')
 var fs = require('fs')
 var url = require('url')
 var port = process.argv[2]
+var md5 = require('md5')
 
 if(!port){
   console.log('请指定端口号好不啦？\nnode server.js 8888 这样不会吗？')
@@ -57,7 +58,7 @@ var server = http.createServer(function(request, response){
       string = string.replace('__password__', foundUser.password)
     }else{
       string = string.replace('__username__', '请登录')
-      string = string.replace('__password__', '不知道')
+      string = string.replace('__password__', '登录后查看')
     }
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
@@ -162,7 +163,7 @@ var server = http.createServer(function(request, response){
   }else if(path === '/default.css'){
     let string = fs.readFileSync('./default.css', 'utf8')
     response.setHeader('Content-Type', 'text/css;charset=utf-8')
-    response.setHeader('Cache-Control', 'max-age=300000000') // Cache-Control
+    // response.setHeader('Cache-Control', 'max-age=300000000') // Cache-Control
     // response.setHeader('Expires', 'Fri, 05 Jul 2019 04:47:35 GMT')
     response.write(string)
     response.end()
@@ -171,7 +172,7 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/javascript;charset=utf-8')
     let fileMd5 = md5(string)
     response.setHeader('ETag', fileMd5) // ETag
-    if(response.headers['if-none-match'] === fileMd5){
+    if(request.headers['if-none-match'] === fileMd5){
       // 没有响应体
       response.statusCode = 304
     }else{

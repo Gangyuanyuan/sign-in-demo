@@ -1,13 +1,9 @@
 .wrapper{
-	border: 1px solid red;
-	margin-bottom: 20px;
-	padding: 10px;
-}
-.explain{
-	line-height: 26px;
+	width: 500px;
+	margin: 200px auto;
 }
 button{
-	margin: 10px 100px;
+	margin: 0 550px;
 	padding: 5px 10px;
-	border-radius: 4px;
+	border-radius: 5px;
 }

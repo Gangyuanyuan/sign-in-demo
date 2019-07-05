@@ -96,6 +96,7 @@
 			$.post('/sign_up', hash)
 				.then((response) => {
 					alert('注册成功')
+					window.location.href = '/sign_in'
 				}, (request) => {
 					let {errors} = request.responseJSON // 对象
 					if(errors.email && errors.email === 'invalid'){
